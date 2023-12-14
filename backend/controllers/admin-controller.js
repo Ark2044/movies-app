@@ -82,18 +82,31 @@ const getAdmins = async (req, res) => {
   }
   return res.status(200).json({ admins });
 };
+
 const getAdminByID = async (req, res, next) => {
   const id = req.params.id;
+
+  // Check if the ID is "null" and handle it appropriately
+  if (id === "null") {
+    return res.status(400).json({ message: 'Invalid ID: "null"' });
+  }
+
+  console.log("ID:", id);
   let admin;
+
   try {
     admin = await Admin.findById(id).populate("addedMovies");
   } catch (err) {
-    return console.log(err);
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
+
   if (!admin) {
-    return console.log("Cannot find Admin");
+    return res.status(404).json({ message: "Admin not found" });
   }
+
   return res.status(200).json({ admin });
 };
+
 
 module.exports = { addAdmin, adminLogin, getAdmins, getAdminByID };

@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const Movie = require("../models/Movies");
+const mongoose = require("mongoose");
 const admin = require("../models/Admin");
 
 const addMovie = async (req, res, next) => {
@@ -62,7 +62,6 @@ const addMovie = async (req, res, next) => {
 
     await session.commitTransaction();
   } catch (err) {
-    console.error(err); // Log the error
     return res.send(err.message);
   }
 
@@ -88,16 +87,25 @@ const getAllMovie = async (req, res, next) => {
 
 const getMovieById = async (req, res, next) => {
   const id = req.params.id;
+
+  // Check if the ID is undefined and handle it appropriately
+  if (id === undefined) {
+    return res.status(400).json({ message: 'Invalid or missing movie ID' });
+  }
+
   let movie;
 
   try {
     movie = await Movie.findById(id);
   } catch (err) {
-    return console.log(err);
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
+
   if (!movie) {
-    return res.status(404).json({ message: "Invalid Movie Id" });
+    return res.status(404).json({ message: "Movie not found" });
   }
+
   return res.status(200).json({ movie });
 };
 
